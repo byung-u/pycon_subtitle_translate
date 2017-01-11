@@ -3,11 +3,11 @@ import re
 import sys
 from time import gmtime, strftime
 
-def remove_time(file_name, out_file_name, p3):
+def remove_time(file_name, out_file_name, p):
     fw = open(out_file_name, 'w')
     with open(file_name) as f:
         for line in f:
-            m = p3.match(line)
+            m = p.match(line)
             if m is None:
                 fw.write(line)
     f.closed
