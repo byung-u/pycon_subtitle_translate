@@ -15,8 +15,8 @@ def remove_time(file_name, out_file_name, p):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print('Usage: pyty.py FILE', file=sys.stderr)
+    if len(sys.argv) < 2:
+        print('Usage: %s FILE', sys.argv[0], file=sys.stderr)
         sys.exit(2)
 
     file_name = sys.argv[1]
