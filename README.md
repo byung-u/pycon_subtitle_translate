@@ -26,7 +26,7 @@
 4. 저같은 경우에는 Vim을 이용해서 양쪽에 띄움
   `vim -O $origin_subtitle $step3_result_file'
   
-   커서를 동시에 움직여야 하므로 양쪽화면에 바인딩 옵션 사용
+   커서를 동시에 움직여야 하므로 `양쪽`화면에 바인딩 옵션 사용
    :set scrollbind
 
 5. 번역시작
