@@ -55,18 +55,22 @@ def merge_english_lines(file_name, out_file_name, p):
     fw.close()
 
 
-def insert_korean_lines(file1, file2, out_file_name):
-    f1 = open(file1, "r")
-    f2 = open(file2, "r")
+def insert_korean_lines(en, ko, output, p):
+    f1 = open(en, "r")
+    f2 = open(ko, "r")
 
-    fw = open(out_file_name, 'w')
+    #fw = open(out_file_name, 'w')
 # TODO : It will not working.. n.n
-    for line in f1:
-        fw.write('\n' + line.rstrip() + '\n' + f2.readline().strip())
+    for l1, l2 in f1, f2:
+        m = p.match(line)
+        if m is not None:
+            print('[EN]', l1)
+            print('[KO]', l2)
+        #fw.write('\n' + line.rstrip() + '\n' + f2.readline().strip())
 
     f1.close()
     f2.close()
-    fw.close()
+    #fw.close()
 
 
 def main():
@@ -145,8 +149,10 @@ def main():
 
     if args.insert_ko_lines:
         print("[insert korean lines]: ", file_name)
+        ko_file_name = file_name.replace('.en.', '.ko.')
         out_file_name = '%s.mix' % (out_file_name)
-        insert_korean_lines(file_name, out_file_name)
+        print(file_name, ko_file_name, out_file_name)
+        insert_korean_lines(file_name, ko_file_name, out_file_name, time_record)
         # TODO: remove_dup_time
 
     sys.exit(0)
