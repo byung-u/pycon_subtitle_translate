@@ -8,7 +8,7 @@ import re
 import subprocess
 import sys
 from googletrans import Translator
-from time import gmtime, strftime, sleep
+from time import gmtime, strftime
 
 
 def remove_time(file_name, out_file_name, p):
@@ -59,23 +59,23 @@ def merge_english_lines(file_name, out_file_name, p):
     fw.close()
 
 
-def insert_korean_lines(en, ko, output, p):
-    f1 = open(en, "r")
-    f2 = open(ko, "r")
-
-    #fw = open(out_file_name, 'w')
-# TODO : It will not working.. n.n
-    for l1, l2 in f1, f2:
-        m = p.match(line)
-        if m is not None:
-            print('[EN]', l1)
-            print('[KO]', l2)
-        #fw.write('\n' + line.rstrip() + '\n' + f2.readline().strip())
-
-    f1.close()
-    f2.close()
-    #fw.close()
-
+# def insert_korean_lines(en, ko, output, p):
+#     f1 = open(en, "r")
+#     f2 = open(ko, "r")
+#
+#     #fw = open(out_file_name, 'w')
+# # TODO : It will not working.. n.n
+#     for l1, l2 in f1, f2:
+#         m = p.match(line)
+#         if m is not None:
+#             print('[EN]', l1)
+#             print('[KO]', l2)
+#         #fw.write('\n' + line.rstrip() + '\n' + f2.readline().strip())
+#
+#     f1.close()
+#     f2.close()
+#     #fw.close()
+#
 def subtitle_translate(file_name, fw, t):
     with open(file_name) as f:
         for idx, line in enumerate(f):
@@ -114,21 +114,14 @@ def main():
     parser = argparse.ArgumentParser(prog='subtitle_edit',
                                      fromfile_prefix_chars='@',
                                      formatter_class=help_factory)
-    parser.add_argument(
-            "-f", "--file", metavar='PATH',
-            nargs=1, help="[mandatory] file path")
-    parser.add_argument(
-            "-r", "--remove-time-record",
-            help="remove time record in subtitle", action="store_true",
-            dest="remove_time_record")
-    parser.add_argument(
-            "-m", "--merge-en-lines",
-            help="merge english subtitle in 1 line", action="store_true",
-            dest="merge_en_lines")
-    parser.add_argument(
-            "-i", "--insert-ko-lines",
-            help="mix en and 1st translate ko subtitle", action="store_true",
-            dest="insert_ko_lines")
+    parser.add_argument("-f", "--file", metavar='PATH', nargs=1,
+                        help="[mandatory] file path")
+    parser.add_argument("-r", "--remove-time-record",
+                        help="remove time record in subtitle",
+                        action="store_true", dest="remove_time_record")
+    parser.add_argument("-m", "--merge-en-lines",
+                        help="merge english subtitle in 1 line",
+                        action="store_true", dest="merge_en_lines")
     parser.add_argument('--remove-space-time', action='store_true')
     parser.add_argument('--translate', action='store_true')
 
@@ -146,8 +139,8 @@ def main():
     # print(args)
     if args.file:
         file_name = args.file[0]
-        out_file_name = '%s.%s' % (
-                file_name, strftime("%Y%m%d%H%M%S", gmtime()))
+        out_file_name = '%s.%s' % (file_name,
+                                   strftime("%Y%m%d%H%M%S", gmtime()))
     else:
         print(args.help)
 
@@ -169,16 +162,8 @@ def main():
     if args.remove_space_time:
         print("[remove useless whitespace]: ", out_file_name)
         out_file_name = '%s.fix_time' % (out_file_name)
-        remove_white_space_time(
-                file_name, out_file_name, time_record, tr1, tr2, tr3)
-
-    if args.insert_ko_lines:
-        print("[insert korean lines]: ", file_name)
-        ko_file_name = file_name.replace('.en.', '.ko.')
-        out_file_name = '%s.mix' % (out_file_name)
-        print(file_name, ko_file_name, out_file_name)
-        insert_korean_lines(file_name, ko_file_name, out_file_name, time_record)
-        # TODO: remove_dup_time
+        remove_white_space_time(file_name, out_file_name, time_record,
+                                tr1, tr2, tr3)
 
     if args.translate:
         file_size = os.path.getsize(file_name)
@@ -194,10 +179,9 @@ def main():
                 t = Translator()
                 print(split_file_name)
                 subtitle_translate(split_file_name, fw, t)
-                #sleep(3)
 
-                # print(split_file_name)
         fw.close()
+
 
 if __name__ == '__main__':
     main()
