@@ -1,10 +1,14 @@
-#!/usr/bin/env python3.5
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import argparse
+import glob
+import os
 import re
+import subprocess
 import sys
-from time import gmtime, strftime
+from googletrans import Translator
+from time import gmtime, strftime, sleep
 
 
 def remove_time(file_name, out_file_name, p):
@@ -72,6 +76,29 @@ def insert_korean_lines(en, ko, output, p):
     f2.close()
     #fw.close()
 
+def subtitle_translate(file_name, fw, t):
+    with open(file_name) as f:
+        for idx, line in enumerate(f):
+            if idx < 3:
+                fw.write(line)
+                continue
+            line = line.replace('\"', '\'')
+            result = t.translate(line, dest='ko')
+            print(result.text)
+            fw.write(result.text)
+            fw.write('\n')
+    t = None
+    f.closed
+
+
+def run_split_command(file_name):
+    command = 'split -l 500 -a 2 "./%s" "%s_"' % (file_name, file_name)  # by line
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    process.wait()
+    if process.returncode != 0:
+        print('[ERR]', command)
+        raise RuntimeError
+
 
 def main():
     if len(sys.argv) < 2:
@@ -99,13 +126,11 @@ def main():
             help="merge english subtitle in 1 line", action="store_true",
             dest="merge_en_lines")
     parser.add_argument(
-            "-t", "--remove-space-time",
-            help="remove any useless white space in time record",
-            action="store_true", dest="remove_space_time")
-    parser.add_argument(
-            "-i", "--inert-ko-lines",
+            "-i", "--insert-ko-lines",
             help="mix en and 1st translate ko subtitle", action="store_true",
             dest="insert_ko_lines")
+    parser.add_argument('--remove-space-time', action='store_true')
+    parser.add_argument('--translate', action='store_true')
 
     # 00:37:24.250 --> 00:37:30.160
     time_record = re.compile(r'\d+\d+:\d+\d+:\d+\d+\.\d+\d+\d+\ -\-\>\ \d+\d+:\d+\d+:\d+\d+\.\d+\d+\d+')
@@ -155,8 +180,24 @@ def main():
         insert_korean_lines(file_name, ko_file_name, out_file_name, time_record)
         # TODO: remove_dup_time
 
-    sys.exit(0)
+    if args.translate:
+        file_size = os.path.getsize(file_name)
+        out_file_name = '%s.translated' % (out_file_name)
+        fw = open(out_file_name, 'w')
+        if file_size < 15 * 1024:  # max 15K byte
+            subtitle_translate(file_name, fw, Translator())
+        else:
+            run_split_command(file_name)  # split flie by max limit size
+            glob_file_name = './%s_*' % file_name
+            entries = glob.glob(glob_file_name)
+            for split_file_name in entries:
+                t = Translator()
+                print(split_file_name)
+                subtitle_translate(split_file_name, fw, t)
+                #sleep(3)
 
+                # print(split_file_name)
+        fw.close()
 
 if __name__ == '__main__':
     main()
