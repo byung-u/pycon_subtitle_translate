@@ -21,11 +21,7 @@ USAGE
 
   `subtitle_edit.py -f $file_name --translate`
 
-3. 번역된 것과 영어로 된 원문을 서로 합침 (번역이 올바른지 확인하기 위함)
-
-  `subtitle_edit.py -f $file_name -i`
-
-4. Vim을 이용해서 양쪽에 띄움
+3. Vim을 이용해서 양쪽에 띄움
 
   `vim -O $origin_subtitle $step3_result_file`
   
@@ -33,7 +29,7 @@ USAGE
 
    `:set scrollbind`
 
-5. 번역시작
+4. 번역시작
 
 
 Release
@@ -44,7 +40,6 @@ Release
 - 0.1.0 (2017.01.06)
   - time record 제거 기능 추가
   - 2줄의 영문자막 한줄로 합침
-  - 한글로 번역한 것과 기존의 영어 원문을 합치는 기능 추가
   - 수동 번역 후 --> 형식이 변경되어 다시 -->로 되돌리는 기능 추가
   
 
