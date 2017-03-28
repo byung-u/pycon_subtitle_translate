@@ -4,6 +4,7 @@
 import glob
 import os
 import re
+from unidecode import unidecode
 import subprocess
 import sys
 
@@ -15,6 +16,7 @@ def merge_english_lines(file_name, out_file_name, time_record):
     with open(file_name) as f:
         for idx, line in enumerate(f):
             if idx < 3:
+                line = line.replace('Language: en', 'Language: ko')
                 fw.write(line)
                 continue
             m = time_record.match(line)
@@ -29,13 +31,21 @@ def merge_english_lines(file_name, out_file_name, time_record):
     fw.close()
 
 
-def subtitle_translate(file_name, fw, t):
+def subtitle_translate(file_name, time_record, fw, t):
     with open(file_name) as f:
         for idx, line in enumerate(f):
             if idx < 3:
                 fw.write(line)
                 continue
-            line = line.replace('\"', '\'').replace('à', 'a')
+            m = time_record.match(line)
+            if m is not None:
+                fw.write(line)
+                print(line)
+                continue
+            line = unidecode(line)
+            line = line.replace(',', '')
+            line = line.replace('\"', '')
+            # line = line.replace('à', 'a')
             result = t.translate(line, dest='ko')
             print(result.text)
             fw.write(result.text)
@@ -59,8 +69,13 @@ def main():
     time_record = re.compile(r'\d+\d+:\d+\d+:\d+\d+\.\d+\d+\d+\ -\-\>\ \d+\d+:\d+\d+:\d+\d+\.\d+\d+\d+')
 
     all_files = glob.glob('./PyconSubtitle/*')
+    # all_files = glob.glob('./PyconSubtitle.bak/*')
     for idx, each_file in enumerate(all_files):
-        # print('{}[INFO] {}'.format(idx, each_file))
+        #if idx < 4:
+        #    continue
+        print('{}[INFO] {}'.format(idx, each_file))
+        if (each_file.find('.ko.vtt') != -1) or (each_file.find('.vtt.merge') != -1):  # it's already translated.
+            continue
         merged_file = '%s.merge' % (each_file)
         merge_english_lines(each_file, merged_file, time_record)
 
@@ -68,16 +83,14 @@ def main():
         out_file_name = each_file.replace('.en.vtt', '.ko.vtt')
         fw = open(out_file_name, 'w')
         if file_size < 15 * 1024:  # max 15K byte
-            subtitle_translate(merged_file, fw, Translator())
+            subtitle_translate(merged_file, time_record, fw, Translator())
         else:
             run_split_command(merged_file)  # split flie by max limit size
             glob_merge_file = '%s_*' % merged_file
             entries = glob.glob(glob_merge_file)
             for split_file in entries:
-                t = Translator()
-                # print('{}[INFO] {}'.format(idx, split_file))
-                subtitle_translate(split_file, fw, t)
-
+                print('{}[INFO] {}'.format(idx, split_file))
+                subtitle_translate(split_file, time_record, fw, Translator())
         fw.close()
 
 
