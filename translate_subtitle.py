@@ -42,10 +42,13 @@ def subtitle_translate(file_name, time_record, fw, t):
                 fw.write(line)
                 print(line)
                 continue
-            line = unidecode(line)
-            line = line.replace(',', '')
-            line = line.replace('\"', '')
-            # line = line.replace('à', 'a')
+            line = line.rstrip()
+            line = unidecode(line)         # unicode to ascii
+            line = line.replace('.', '')   # some dot causes translate error
+            line = line.replace(',', '')   # some comma causes translate error
+            line = line.replace('\"', '')  # double quot causes translate error
+            if (line == 'problem'):  # only 'problem' keyword causes error
+                line = line.replace('problem', 'problems')
             result = t.translate(line, dest='ko')
             print(result.text)
             fw.write(result.text)
@@ -69,7 +72,7 @@ def main():
     time_record = re.compile(r'\d+\d+:\d+\d+:\d+\d+\.\d+\d+\d+\ -\-\>\ \d+\d+:\d+\d+:\d+\d+\.\d+\d+\d+')
 
     all_files = glob.glob('./PyconSubtitle/*')
-    # all_files = glob.glob('./PyconSubtitle.bak/*')
+    all_files = glob.glob('./Subtitles/*')
     for idx, each_file in enumerate(all_files):
         #if idx < 4:
         #    continue
