@@ -49,6 +49,10 @@ def subtitle_translate(file_name, time_record, fw, t):
             line = line.replace('\"', '')  # double quot causes translate error
             if (line == 'problem'):  # only 'problem' keyword causes error
                 line = line.replace('problem', 'problems')
+            if (line == 'run'):  # only 'run' keyword causes error
+                line = line.replace('run', 'runs')
+            if (line == 'incentive'):  # only 'incentive' keyword causes error
+                line = line.replace('incentive', 'incentives')
             result = t.translate(line, dest='ko')
             print(result.text)
             fw.write(result.text)
@@ -71,11 +75,14 @@ def main():
     # 00:37:24.250 --> 00:37:30.160
     time_record = re.compile(r'\d+\d+:\d+\d+:\d+\d+\.\d+\d+\d+\ -\-\>\ \d+\d+:\d+\d+:\d+\d+\.\d+\d+\d+')
 
-    all_files = glob.glob('./PyconSubtitle/*')
+    #all_files = glob.glob('./PyconSubtitle/*')
     all_files = glob.glob('./Subtitles/*')
     for idx, each_file in enumerate(all_files):
-        #if idx < 4:
-        #    continue
+        if each_file.find('`'):
+            new_each_file = each_file.replace('`', '')
+            os.rename(each_file, new_each_file)
+            each_file = new_each_file
+
         print('{}[INFO] {}'.format(idx, each_file))
         if (each_file.find('.ko.vtt') != -1) or (each_file.find('.vtt.merge') != -1):  # it's already translated.
             continue
